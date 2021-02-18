@@ -4,7 +4,6 @@ import  sys
 from JavaEnvSwitcher.src.exefile import is_admin
 from JavaEnvSwitcher.src.exefile.switcher import Switcher
 
-import platform
 
 if __name__ =="__main__":
 

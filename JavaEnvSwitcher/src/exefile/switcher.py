@@ -9,9 +9,11 @@ Email: p1ay8y3ar@gmail.com
 
 
 import  winreg as wg
-from JavaEnvSwitcher.src.exefile.key_config import ENV_PATH,jdk_path,Oracle_PATH
+from JavaEnvSwitcher.src.exefile.key_config import ENV_PATH,jdk_path,Oracle_PATH,JSON_PATH
 import re
-from ctypes import  wintypes
+import os
+import json
+import time
 import  ctypes
 class Switcher:
     def __init__(self):
@@ -61,7 +63,7 @@ class Switcher:
             '''
             get jdk version
             '''
-            pattern=r"Java[\S0-9]*"
+            pattern=r"\\jdk-*[\d+-.\w]*\\bin"
             for i in range(len(self.envstrlist)):
 
                 if self.envstrlist[i]==Oracle_PATH:
@@ -78,14 +80,14 @@ class Switcher:
             return None
         except Exception as e:
             print(e)
-            return []
+            return ""
 
     def java_install_path(self):
         '''
         get java_install_path in windows
         :return: a tuple ,which contains list of java install paths
         '''
-        jdk_list=[]
+        self.jdk_list=[]
         for path in jdk_path:
 
             jdk_handle = self.open_key_handle(path)
@@ -96,15 +98,82 @@ class Switcher:
                 sub_handle = self.open_key_handle(sub_key)
                 if sub_handle==None:continue
                 sub_str = wg.QueryValueEx(sub_handle, 'JavaHome')
-                jdk_list.append(sub_str[0])
+                self.jdk_list.append(sub_str[0])
 
-        return set(jdk_list)
+        custom_path =self.loadpath_fromjson()
+        self.jdk_list.extend(custom_path)
+        return set(self.jdk_list)
     def __weekout_invalid_path(self,pathlist):
         for i in range(len(pathlist)):
             if pathlist[i].strip()=="":
                 pathlist.pop(i)
-    def set_new_env(self,path):
+    def path_check(self,path)->bool:
+        bin_path="\\bin"
+        java_path="\\bin\\java.exe"
+        lib_path="\\lib"
         try:
+            if not os.path.exists(path):return False
+            if not os.path.exists(path+lib_path):return False
+            if not os.path.exists(path+bin_path):return False
+            if not os.path.exists(path+java_path):return False
+        except:
+            return False
+        return True
+
+    def savato_json(self,localpath):
+        try:
+
+            if os.path.exists(JSON_PATH):
+                with  open(JSON_PATH, "a+")as f:
+                    loaded =json.load(f)
+                    path_dict =loaded["localpath"]
+                    for k,v in path_dict.items():
+                        if localpath==v:
+                            return True
+                    loaded["localpath"][int(time.time())] = localpath
+                    json.dump(loaded, f)
+            else:
+                with  open(JSON_PATH, "a+")as f:
+                    loaded = {}
+                    loaded["localpath"] = {}
+                    loaded["localpath"][int(time.time())] = localpath
+                    json.dump(loaded,f)
+                    return True
+        except Exception as e:
+            print(e)
+            return False
+
+    def loadpath_fromjson(self)->list:
+        return_list=[]
+        try:
+
+            if os.path.exists(JSON_PATH):
+
+                with  open(JSON_PATH, "r")as f:
+                    loaded =json.load(f)
+                    path_dict =loaded["localpath"]
+                    for k,v in path_dict.items():
+                        return_list.append(v)
+            return return_list
+        except:
+            os.remove(JSON_PATH)
+            return return_list
+
+    def set_new_env(self,path):
+        '''
+        set env now
+        :param path:
+        :return:
+        '''
+        try:
+            #路径检测
+            print(path)
+            if not self.path_check(path):return False
+            if path not in self.jdk_list:
+
+                self.savato_json(path)
+                self.jdk_list.append(path)
+
             orgin_path=";".join(self.envstrlist)
             new_path=path+"\\bin"+';'+orgin_path
             wg.SetValueEx(self.sys_handle, 'path', '', self.envint, new_path)

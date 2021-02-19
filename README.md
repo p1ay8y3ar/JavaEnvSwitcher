@@ -1,5 +1,5 @@
 # JavaEnvSwitcher
-a easy jdk switch tool for windows
+an easy jdk switch tool for windows
 
 
 ##version 0.1.1.0

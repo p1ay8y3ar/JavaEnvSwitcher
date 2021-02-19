@@ -51,7 +51,7 @@ class Switcher:
             get all system path variable
             '''
             self.sys_handle = self.__sys_env_handle()
-            if self.sys_handle==None: return None
+            if self.sys_handle==None: return ""
 
             query_result = wg.QueryValueEx(self.sys_handle, 'path')
 
@@ -76,11 +76,12 @@ class Switcher:
                 else:
                     self.nowenv=self.envstrlist.pop(i)
                     return self.nowenv
+            return ""
         except PermissionError:
-            return None
+            return "None"
         except Exception as e:
             print(e)
-            return ""
+            return "None"
 
     def java_install_path(self):
         '''

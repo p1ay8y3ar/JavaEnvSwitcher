@@ -3,8 +3,8 @@ an easy jdk switch tool for windows
 
 --- 
 
- - [x] test on windows 7
- - [ ] test on windows  10
+ - [x] work on windows 7
+ - [x] work on windows  10
 --- 
 
 

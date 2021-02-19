@@ -2,7 +2,7 @@
 an easy jdk switch tool for windows
 
 
-##version 0.1.1.0
+## version 0.1.1.0
 support local jdk path,like openjdk
 
 ![](./source/imgs/1.png)

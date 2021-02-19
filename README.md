@@ -1,6 +1,7 @@
 # JavaEnvSwitcher
 an easy jdk switch tool for windows
 
+ - [x] test on windows 7
 
 ## version 0.1.1.0
 support local jdk path,like openjdk
